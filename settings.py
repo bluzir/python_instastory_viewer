@@ -1,5 +1,5 @@
-API_VERSION = 'v1'
-API_URL = 'https://i.instagram.com/api/{}/{}'.format(API_VERSION)
+API_VERSION = 'v2'
+API_URL = 'https://i.instagram.com/api/{}/{}'
 DEVICE_SETTINTS = {
     'manufacturer': 'Xiaomi',
     'model': 'HM 1SW',

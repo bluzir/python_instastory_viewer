@@ -1,7 +1,5 @@
-import json
-from time import sleep
-
 import requests
+import time
 
 import settings
 import utils
@@ -37,7 +35,7 @@ class InstagramAPI:
         # Values from response
         self.response = None
         self.response_decoded = None
-        self.token = None
+        self.token = '9buQEiunf7vdc7ywvnrOMFvn6OAP52ZC'
         self.username_id = None
         self.rank_token = None
 
@@ -65,7 +63,7 @@ class InstagramAPI:
             self.rank_token = "%s_%s" % (self.username_id, self.uuid)
 
             self.sync_features()
-            self.autocomplete_userlist()
+            # self.autocomplete_userlist()
             self.timeline_feed()
             self.get_v2_inbox()
             self.get_recent_activity()
@@ -120,6 +118,27 @@ class InstagramAPI:
             api_method='news/inbox/?'
         )
 
+    def get_friends_stories(self):
+        return self.send_request(
+            request_method='get',
+            api_method='feed/reels_tray/',
+        )
+
+    def mark_story_as_seen(self, stories):
+        data = {
+            '_uuid': self.uuid,
+            '_uid': self.username_id,
+            'id': self.username_id,
+            '_csrftoken': self.token,
+            'reels': stories,
+        }
+
+        return self.send_request(
+            request_method='post',
+            api_method='media/seen/',
+            data=data,
+        )
+
     def send_request(self, request_method, api_method='', data=None):
         if request_method == 'get':
             response = self.session.get(settings.API_URL.format(settings.API_VERSION, api_method))
@@ -142,11 +161,23 @@ class InstagramAPI:
 
 def main():
     client = InstagramAPI()
-    if client.login():
-        print('Token: '+client.token)
+    client.login()
+    print(client.token)
+    client.get_friends_stories()
+    stories_response = client.response_decoded
+    if stories_response['status'] == 'ok':
+        reels = stories_response['tray']
+        for reel in reels:
+            if reel['items']:
+                for moment in reel['items']:
+                    taken_at = str(moment['taken_at'])
+                    moment['taken_at'] = taken_at + '_' + "%.0f" % time.time()
+                    client.mark_story_as_seen(moment)
 
 
 if __name__ == '__main__':
     main()
+
+
 
 

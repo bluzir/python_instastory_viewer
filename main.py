@@ -126,17 +126,16 @@ class InstagramAPI:
 
     def mark_story_as_seen(self, stories):
         data = {
-            '_uuid': self.uuid,
-            '_uid': self.username_id,
-            '_csrftoken': self.token,
-            'id': self.username_id,
-            'reels': stories,
+            "_uuid": self.uuid,
+            "_uid": self.username_id,
+            "_csrftoken": self.token,
+            "reels": stories,
         }
-        print(data)
+        sig = utils.generate_signature(data)
         return self.send_request(
             request_method='post',
             api_method='media/seen/',
-            data=data,
+            data=sig,
         )
 
     def send_request(self, request_method, api_method='', data=None):
@@ -175,9 +174,8 @@ def main():
                     seen.update(
                         {moment["id"]: [taken_at]}
                     )
-    print(seen)
     mark_seen = client.mark_story_as_seen(seen)
-    print(mark_seen)
+    print('{} stories was marked as seen'.format(len(seen)))
 
 
 if __name__ == '__main__':

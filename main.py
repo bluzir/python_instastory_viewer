@@ -76,19 +76,18 @@ class InstagramAPI:
             return False
 
     def sync_features(self):
-        data = json.dumps({
+        data = {
             '_uuid': self.uuid,
             '_uid': self.username_id,
             'id': self.username_id,
             '_csrftoken': self.token,
             'experiments': settings.EXPERIMENTS
-        })
-
-        print(data)
+        }
+        sig = utils.generate_signature(data)
         return self.send_request(
             request_method='post',
             api_method='qe/sync/',
-            data=utils.generate_signature(data)
+            data=sig,
         )
 
     def autocomplete_userlist(self):

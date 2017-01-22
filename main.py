@@ -128,11 +128,11 @@ class InstagramAPI:
         data = {
             '_uuid': self.uuid,
             '_uid': self.username_id,
-            'id': self.username_id,
             '_csrftoken': self.token,
+            'id': self.username_id,
             'reels': stories,
         }
-
+        print(data)
         return self.send_request(
             request_method='post',
             api_method='media/seen/',
@@ -167,12 +167,17 @@ def main():
     stories_response = client.response_decoded
     if stories_response['status'] == 'ok':
         reels = stories_response['tray']
+        seen = {}
         for reel in reels:
             if reel['items']:
                 for moment in reel['items']:
-                    taken_at = str(moment['taken_at'])
-                    moment['taken_at'] = taken_at + '_' + "%.0f" % time.time()
-                    client.mark_story_as_seen(moment)
+                    taken_at = str(moment['taken_at'])+ '_' + "%.0f" % time.time()
+                    seen.update(
+                        {moment["id"]: [taken_at]}
+                    )
+    print(seen)
+    mark_seen = client.mark_story_as_seen(seen)
+    print(mark_seen)
 
 
 if __name__ == '__main__':
